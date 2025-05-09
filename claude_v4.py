@@ -544,7 +544,7 @@ class CookieClickerBot:
         big_counter_frame = ttk.Frame(counter_frame)
         big_counter_frame.pack(fill=tk.X, pady=5)
         
-        ttk.Label(big_counter_frame, text="Big Cookies:").pack(side=tk.LEFT, padx=(0, 14))  # Added padding for alignment
+        ttk.Label(big_counter_frame, text="Big Cookies (inaccurate):").pack(side=tk.LEFT, padx=(0, 14))  # Added padding for alignment
         
         # Session counter
         ttk.Label(big_counter_frame, text="Session:").pack(side=tk.LEFT, padx=(10, 0))
