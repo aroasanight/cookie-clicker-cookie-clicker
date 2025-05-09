@@ -1,12 +1,23 @@
-# Use `claude_v4.py` for the latest. v1, v2, v3, and base are all "backups" (ie functioning versions with lesser features).
+# Important Info
 
-# IMPORTANT: Disable fancy graphics in Cookie Clicker's settings for Golden Cookie detection to function.
+1. Use `claude_v4.py` for the latest. v1, v2, v3, and base are all "backups" (ie functioning versions with lesser features).
 
-## Also ensure you're using provided `golden_cookie.png` and `big_cookie.png`.
+2. Disable fancy graphics in Cookie Clicker's settings for Golden Cookie detection to function.
 
-With the default delay of 0ms on the big cookie autoclicker, this may cause high CPU usage. If this becomes a problem, set it to 1ms or above and only 1 thread will run instead of 100.
+3. Ensure you're using provided `golden_cookie.png` and `big_cookie.png` images.
 
----
+4. With the default delay of 0ms on the big cookie autoclicker, this may cause high CPU usage. If this becomes a problem, set it to 1ms or above and only 1 thread will run instead of 100.
+
+# Requirements
+
+This script relies on the four modules PyAutoGUI, pynput, Pillow, and OpenCV. Either run `pip install -r requirements.txt`, or manually install the followin four modules:
+
+```
+pyautogui
+pynput
+pillow
+opencv-python
+```
 
 # Features
 
