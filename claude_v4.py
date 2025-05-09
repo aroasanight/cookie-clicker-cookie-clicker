@@ -602,13 +602,39 @@ class CookieClickerBot:
         ttk.Label(parent, text="Confidence Threshold:").grid(row=0, column=0, sticky=tk.W, pady=5)
         ttk.Entry(parent, textvariable=vars_dict[f'{cookie_type}_confidence'], width=10).grid(row=0, column=1, sticky=tk.W, pady=5)
         
-        ttk.Label(parent, text="Check Interval:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        if cookie_type == "golden":
+            ttk.Label(parent, text="Check Interval:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        else:
+            ttk.Label(parent, text="Click Interval:").grid(row=1, column=0, sticky=tk.W, pady=5)
         interval_frame = ttk.Frame(parent)
         interval_frame.grid(row=1, column=1, sticky=tk.W, pady=5)
         
-        ttk.Entry(interval_frame, textvariable=vars_dict[f'{cookie_type}_interval_sec'], width=3).pack(side=tk.LEFT)
+        # Seconds spinbox (0-1800)
+        seconds_spinbox = ttk.Spinbox(
+            interval_frame,
+            from_=0,
+            to=1800,
+            width=4,
+            textvariable=vars_dict[f'{cookie_type}_interval_sec'],
+            wrap=True,
+            validate="all",
+            validatecommand=(parent.register(lambda P: (P.isdigit() or P == "") and (int(P) <= 1800 if P.isdigit() else True)), '%P')
+        )
+        seconds_spinbox.pack(side=tk.LEFT)
         ttk.Label(interval_frame, text="s").pack(side=tk.LEFT)
-        ttk.Entry(interval_frame, textvariable=vars_dict[f'{cookie_type}_interval_ms'], width=3).pack(side=tk.LEFT, padx=(5, 0))
+        
+        # Milliseconds spinbox (0-999)
+        ms_spinbox = ttk.Spinbox(
+            interval_frame,
+            from_=0,
+            to=999,
+            width=4,
+            textvariable=vars_dict[f'{cookie_type}_interval_ms'],
+            wrap=True,
+            validate="all",
+            validatecommand=(parent.register(lambda P: (P.isdigit() or P == "") and (int(P) <= 999 if P.isdigit() else True)), '%P')
+        )
+        ms_spinbox.pack(side=tk.LEFT, padx=(5, 0))
         ttk.Label(interval_frame, text="ms").pack(side=tk.LEFT)
         
         ttk.Label(parent, text="Toggle Key:").grid(row=2, column=0, sticky=tk.W, pady=5)
@@ -625,14 +651,14 @@ class CookieClickerBot:
             textvariable=vars_dict[f'{cookie_type}_f_key_number'],
             wrap=True,
             validate="all",
-            validatecommand=(parent.register(lambda P: P.isdigit() and 1 <= int(P) <= 24 if P else True), '%P')
+            validatecommand=(parent.register(lambda P: (P.isdigit() or P == "") and (1 <= int(P) <= 24 if P.isdigit() and P != "" else True)), '%P')
         )
         f_key_spinner.pack(side=tk.LEFT)
         
         # Save button
         ttk.Button(parent, text="Save Settings", 
-                  command=lambda: self.save_settings_from_gui(vars_dict, cookie_type)).grid(
-                      row=3, column=0, columnspan=2, pady=15)
+                command=lambda: self.save_settings_from_gui(vars_dict, cookie_type)).grid(
+                    row=3, column=0, columnspan=2, pady=15)
     
     def run(self):
         """Start the application"""
