@@ -14,7 +14,7 @@ DEFAULT_CONFIG = {
     'golden_toggle_key': 'f8',
     'golden_check_interval_sec': 0,
     'golden_check_interval_ms': 500,
-    'golden_confidence': 0.90,
+    'golden_confidence': 0.80,
     'golden_image_path': 'golden_cookie.png',
     'golden_cookies_clicked_total': 0,
     
