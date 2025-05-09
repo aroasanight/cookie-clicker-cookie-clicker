@@ -4,6 +4,8 @@
 
 ## Also ensure you're using provided `golden_cookie.png` and `big_cookie.png`.
 
+With the default delay of 0ms on the big cookie autoclicker, this may cause high CPU usage. If this becomes a problem, set it to 1ms or above and only 1 thread will run instead of 100.
+
 ---
 
 # Features
@@ -21,3 +23,9 @@
 - Settings memory between program launches
 
 - Stats counter, separate for golden cookies and the big cookie. Separate persistant counter between program launches.
+
+# Default parameters
+
+- Golden Cookie autoclicker is bound to F8, with a 500ms delay between scanning the screen for golden cookies.
+
+- Big Cookie autoclicker is bound to F9, with no delay between clicks.
