@@ -107,7 +107,7 @@ def toggle_bot():
     bot_running = not bot_running
     update_status_display()
     status = "ON" if bot_running else "OFF"
-    log_message(f"Bot toggled {status}")
+    log_message(f"Golden Cookie detection toggled {status}")
     
 # Log a message with timestamp to both console and log window
 def log_message(message):
@@ -182,7 +182,7 @@ def golden_cookie_watcher():
                     # Auto-save the updated total count
                     auto_save_options()
             except Exception as e:
-                log_message(f"ERROR: {e}")
+                print(f"ERROR: {e}")
                 
         # Calculate total interval in seconds
         interval_sec = int(interval_sec_var.get())
@@ -215,7 +215,7 @@ def start_bot_thread():
         keyboard_listener = keyboard.Listener(on_press=on_press)
         keyboard_listener.start()
     
-    log_message(f"Press {options_var['toggle_key'].get().upper()} to toggle bot ON/OFF.")
+    log_message(f"Press {options_var['toggle_key'].get().upper()} to toggle Golden Cookie detection ON/OFF.")
 
 # Save settings from GUI
 def save_settings():
@@ -249,7 +249,7 @@ def create_gui():
     
     # Create root window
     root = tk.Tk()
-    root.title("Golden Cookie Bot")
+    root.title("Cookie Clicker Cookie Clicker")
     root.geometry("500x550")  # Increased height for log box and counters
     root.resizable(True, True)  # Allow resizing
     
@@ -272,18 +272,22 @@ def create_gui():
     main_frame.pack(fill=tk.BOTH, expand=True)
     
     # Title
-    title_label = ttk.Label(main_frame, text="Golden Cookie Bot", font=("Arial", 16, "bold"))
+    title_label = ttk.Label(main_frame, text="Cookie Clicker Cookie Clicker", font=("Arial", 16, "bold"))
     title_label.grid(row=0, column=0, columnspan=3, pady=(0, 15))
     
+    # sub
+    title_label = ttk.Label(main_frame, text="Turn off Fancy Graphics and Numbers in settings.\nAlso disable Particles if autoclicking the big cookie is slow.", font=("Arial", 12))
+    title_label.grid(row=1, column=0, columnspan=3, pady=(0, 15))
+    
     # Confidence threshold
-    ttk.Label(main_frame, text="Confidence Threshold:").grid(row=1, column=0, sticky=tk.W, pady=5)
+    ttk.Label(main_frame, text="Confidence Threshold:").grid(row=2, column=0, sticky=tk.W, pady=5)
     confidence_entry = ttk.Entry(main_frame, textvariable=confidence_var, width=10)
-    confidence_entry.grid(row=1, column=1, sticky=tk.W, pady=5)
+    confidence_entry.grid(row=2, column=1, sticky=tk.W, pady=5)
     
     # Check interval
-    ttk.Label(main_frame, text="Check Interval:").grid(row=2, column=0, sticky=tk.W, pady=5)
+    ttk.Label(main_frame, text="Check Interval:").grid(row=3, column=0, sticky=tk.W, pady=5)
     interval_frame = ttk.Frame(main_frame)
-    interval_frame.grid(row=2, column=1, sticky=tk.W, pady=5)
+    interval_frame.grid(row=3, column=1, sticky=tk.W, pady=5)
     
     interval_sec_entry = ttk.Entry(interval_frame, textvariable=interval_sec_var, width=3)
     interval_sec_entry.pack(side=tk.LEFT)
@@ -294,31 +298,31 @@ def create_gui():
     ttk.Label(interval_frame, text="ms").pack(side=tk.LEFT)
     
     # Toggle key
-    ttk.Label(main_frame, text="Toggle Key:").grid(row=3, column=0, sticky=tk.W, pady=5)
+    ttk.Label(main_frame, text="Toggle Key:").grid(row=4, column=0, sticky=tk.W, pady=5)
     toggle_key_entry = ttk.Entry(main_frame, textvariable=options_var['toggle_key'], width=10)
-    toggle_key_entry.grid(row=3, column=1, sticky=tk.W, pady=5)
+    toggle_key_entry.grid(row=4, column=1, sticky=tk.W, pady=5)
     
     # Image path
-    ttk.Label(main_frame, text="Image Path:").grid(row=4, column=0, sticky=tk.W, pady=5)
+    ttk.Label(main_frame, text="Image Path:").grid(row=5, column=0, sticky=tk.W, pady=5)
     image_path_entry = ttk.Entry(main_frame, textvariable=options_var['image_path'], width=25)
-    image_path_entry.grid(row=4, column=1, columnspan=2, sticky=tk.W, pady=5)
+    image_path_entry.grid(row=5, column=1, columnspan=2, sticky=tk.W, pady=5)
     
     # Bot status
     status_frame = ttk.Frame(main_frame)
-    status_frame.grid(row=5, column=0, columnspan=3, pady=10)
+    status_frame.grid(row=6, column=0, columnspan=3, pady=10)
     
-    ttk.Label(status_frame, text="Bot Status: ").pack(side=tk.LEFT)
+    ttk.Label(status_frame, text="Golden Cookie detection: ").pack(side=tk.LEFT)
     global status_label
     status_label = ttk.Label(status_frame, text="OFF", foreground="#F44336", font=("Arial", 10, "bold"))
     status_label.pack(side=tk.LEFT)
     
     # Toggle button
     toggle_button = ttk.Button(main_frame, text="Turn ON", command=toggle_bot)
-    toggle_button.grid(row=6, column=0, columnspan=3, pady=5)
+    toggle_button.grid(row=7, column=0, columnspan=3, pady=5)
     
     # Cookie counter section
     counter_frame = ttk.Frame(main_frame)
-    counter_frame.grid(row=7, column=0, columnspan=3, pady=5)
+    counter_frame.grid(row=8, column=0, columnspan=3, pady=5)
     
     # Session counter
     session_counter_container = ttk.Frame(counter_frame)
@@ -360,17 +364,17 @@ def create_gui():
               width=5).pack(side=tk.LEFT, padx=(5, 0))
     
     # Hint for toggle key
-    hint_text = f"Press {options['toggle_key']} to toggle bot ON/OFF"
+    hint_text = f"Press {options['toggle_key']} to toggle Golden Cookie detection ON/OFF"
     hint_label = ttk.Label(main_frame, text=hint_text, font=("Arial", 8), foreground="#666666")
-    hint_label.grid(row=8, column=0, columnspan=3, pady=(0, 5))
+    hint_label.grid(row=9, column=0, columnspan=3, pady=(0, 5))
     
     # Save button
     save_button = ttk.Button(main_frame, text="Save Settings", command=save_settings)
-    save_button.grid(row=9, column=0, columnspan=3, pady=5)
+    save_button.grid(row=10, column=0, columnspan=3, pady=5)
     
     # Log section label
     log_label_frame = ttk.Frame(main_frame)
-    log_label_frame.grid(row=10, column=0, columnspan=3, pady=(10, 5), sticky=tk.W)
+    log_label_frame.grid(row=11, column=0, columnspan=3, pady=(10, 5), sticky=tk.W)
     
     log_label = ttk.Label(log_label_frame, text="Activity Log", font=("Arial", 10, "bold"))
     log_label.pack(side=tk.LEFT)
@@ -412,7 +416,7 @@ def create_gui():
     
     # Update settings when the toggle key changes
     def update_hint(*args):
-        hint_label.config(text=f"Press {options_var['toggle_key'].get()} to toggle bot ON/OFF")
+        hint_label.config(text=f"Press {options_var['toggle_key'].get()} to toggle Golden Cookie detection ON/OFF")
     
     options_var['toggle_key'].trace_add("write", update_hint)
     
@@ -420,7 +424,7 @@ def create_gui():
     start_bot_thread()
     
     # Add welcome message to log
-    log_message("Bot started. Currently OFF.")
+    log_message("Golden Cookie detection ready. Currently OFF.")
     
     # When window closes
     def on_closing():
