@@ -1,3 +1,40 @@
+# Update cookie counter displays
+def update_counter_display():
+    if session_counter_label and total_counter_label:
+        session_counter_label.config(text=str(cookies_clicked_session))
+        total_counter_label.config(text=str(cookies_clicked_total))
+
+# Auto save options without showing a confirmation
+def auto_save_options():
+    global cookies_clicked_total
+    
+    try:
+        # Get current options
+        options = {
+            'toggle_key': options_var['toggle_key'].get(),
+            'check_interval_sec': int(interval_sec_var.get()),
+            'check_interval_ms': int(interval_ms_var.get()),
+            'confidence': float(confidence_var.get()),
+            'image_path': options_var['image_path'].get(),
+            'max_log_lines': MAX_LOG_LINES,
+            'cookies_clicked_total': cookies_clicked_total
+        }
+        
+        # Save to file silently
+        with open(OPTIONS_FILE, 'wb') as f:
+            pickle.dump(options, f)
+            
+    except Exception as e:
+        print(f"Error auto-saving options: {e}")# Clear log button
+    def clear_log():
+        if log_text:
+            log_text.config(state=tk.NORMAL)
+            log_text.delete('1.0', tk.END)
+            log_text.config(state=tk.DISABLED)
+            log_message("Log cleared")
+    
+    ttk.Button(main_frame, text="Clear Log", command=clear_log).grid(row=12, column=0, columnspan=3, pady=5, sticky=tk.W)
+
 import pyautogui
 import time
 import threading
@@ -14,6 +51,7 @@ DEFAULT_TOGGLE_KEY = 'f8'
 DEFAULT_CHECK_INTERVAL_SEC = 0
 DEFAULT_CHECK_INTERVAL_MS = 500
 DEFAULT_CONFIDENCE_THRESHOLD = 0.90
+DEFAULT_MAX_LOG_LINES = 1000
 OPTIONS_FILE = 'options.pkl'
 
 # Global variables
@@ -22,13 +60,21 @@ stop_event = threading.Event()
 golden_cookie_thread = None
 keyboard_listener = None
 log_text = None  # For the scrollable log window
+MAX_LOG_LINES = 1000  # Maximum number of lines to keep in the log
+cookies_clicked_session = 0  # Cookies clicked in current session
+cookies_clicked_total = 0  # All-time cookies clicked
 
 # Load saved options
 def load_options():
     if os.path.exists(OPTIONS_FILE):
         try:
             with open(OPTIONS_FILE, 'rb') as f:
-                return pickle.load(f)
+                options = pickle.load(f)
+                # Update global cookie counter
+                global cookies_clicked_total
+                if 'cookies_clicked_total' in options:
+                    cookies_clicked_total = options['cookies_clicked_total']
+                return options
         except Exception as e:
             print(f"Error loading options: {e}")
     
@@ -38,7 +84,9 @@ def load_options():
         'check_interval_sec': DEFAULT_CHECK_INTERVAL_SEC,
         'check_interval_ms': DEFAULT_CHECK_INTERVAL_MS,
         'confidence': DEFAULT_CONFIDENCE_THRESHOLD,
-        'image_path': DEFAULT_GOLDEN_COOKIE_IMAGE
+        'image_path': DEFAULT_GOLDEN_COOKIE_IMAGE,
+        'max_log_lines': DEFAULT_MAX_LOG_LINES,
+        'cookies_clicked_total': 0
     }
 
 # Save options
@@ -70,7 +118,18 @@ def log_message(message):
     # Add to scrollable log if available
     if log_text:
         log_text.config(state=tk.NORMAL)
+        
+        # Add the new log entry
         log_text.insert(tk.END, log_entry + "\n")
+        
+        # Check if we exceeded the maximum number of lines
+        num_lines = int(log_text.index('end-1c').split('.')[0])
+        if num_lines > MAX_LOG_LINES:
+            # Calculate how many lines to remove
+            lines_to_remove = num_lines - MAX_LOG_LINES
+            # Delete the oldest lines
+            log_text.delete('1.0', f"{lines_to_remove + 1}.0")
+            
         log_text.see(tk.END)  # Auto-scroll to the bottom
         log_text.config(state=tk.DISABLED)
 
@@ -97,7 +156,7 @@ def on_press(key):
 
 # Cookie watcher function
 def golden_cookie_watcher():
-    global bot_running
+    global bot_running, cookies_clicked_session, cookies_clicked_total
     
     while not stop_event.is_set():
         if bot_running:
@@ -109,13 +168,21 @@ def golden_cookie_watcher():
                 # Look for golden cookie
                 location = pyautogui.locateCenterOnScreen(image_path, confidence=confidence)
                 if location:
-                    log_message(f"Found golden cookie at {location}")
+                    # Increment cookie counters
+                    cookies_clicked_session += 1
+                    cookies_clicked_total += 1
+                    # Update the counter labels if they exist
+                    update_counter_display()
+                    
+                    log_message(f"Found golden cookie at {location} (Session: {cookies_clicked_session}, Total: {cookies_clicked_total})")
                     original_pos = pyautogui.position()
                     pyautogui.click(location)
                     pyautogui.moveTo(original_pos)
+                    
+                    # Auto-save the updated total count
+                    auto_save_options()
             except Exception as e:
-                # log_message(f"ERROR: {e}")
-                pass
+                log_message(f"ERROR: {e}")
                 
         # Calculate total interval in seconds
         interval_sec = int(interval_sec_var.get())
@@ -152,13 +219,17 @@ def start_bot_thread():
 
 # Save settings from GUI
 def save_settings():
+    global cookies_clicked_total
+    
     # Update options from GUI
     options = {
         'toggle_key': options_var['toggle_key'].get(),
         'check_interval_sec': int(interval_sec_var.get()),
         'check_interval_ms': int(interval_ms_var.get()),
         'confidence': float(confidence_var.get()),
-        'image_path': options_var['image_path'].get()
+        'image_path': options_var['image_path'].get(),
+        'max_log_lines': MAX_LOG_LINES,
+        'cookies_clicked_total': cookies_clicked_total
     }
     
     # Save to file
@@ -170,7 +241,8 @@ def save_settings():
 
 # Create the main GUI window
 def create_gui():
-    global status_label, confidence_var, interval_sec_var, interval_ms_var, options_var, toggle_button, log_text
+    global status_label, confidence_var, interval_sec_var, interval_ms_var, options_var, toggle_button, log_text, MAX_LOG_LINES
+    global session_counter_label, total_counter_label
     
     # Load saved options
     options = load_options()
@@ -178,7 +250,7 @@ def create_gui():
     # Create root window
     root = tk.Tk()
     root.title("Golden Cookie Bot")
-    root.geometry("500x500")  # Increased height for log box
+    root.geometry("500x550")  # Increased height for log box and counters
     root.resizable(True, True)  # Allow resizing
     
     # Variables
@@ -190,6 +262,10 @@ def create_gui():
         'toggle_key': tk.StringVar(value=options['toggle_key']),
         'image_path': tk.StringVar(value=options['image_path'])
     }
+    
+    # Create a variable for max log lines if it's in the options
+    if 'max_log_lines' in options:
+        MAX_LOG_LINES = options['max_log_lines']
     
     # Main frame
     main_frame = ttk.Frame(root, padding=20)
@@ -240,26 +316,96 @@ def create_gui():
     toggle_button = ttk.Button(main_frame, text="Turn ON", command=toggle_bot)
     toggle_button.grid(row=6, column=0, columnspan=3, pady=5)
     
+    # Cookie counter section
+    counter_frame = ttk.Frame(main_frame)
+    counter_frame.grid(row=7, column=0, columnspan=3, pady=5)
+    
+    # Session counter
+    session_counter_container = ttk.Frame(counter_frame)
+    session_counter_container.pack(side=tk.LEFT, padx=(0, 20))
+    
+    ttk.Label(session_counter_container, text="Session Cookies:", font=("Arial", 9)).pack(side=tk.LEFT)
+    session_counter_label = ttk.Label(session_counter_container, text=str(cookies_clicked_session), 
+                                    font=("Arial", 9, "bold"))
+    session_counter_label.pack(side=tk.LEFT, padx=(5, 0))
+    
+    # Reset button for session counter
+    def reset_session_counter():
+        global cookies_clicked_session
+        cookies_clicked_session = 0
+        update_counter_display()
+        log_message("Session counter reset to 0")
+        
+    ttk.Button(session_counter_container, text="Reset", command=reset_session_counter, 
+              width=5).pack(side=tk.LEFT, padx=(5, 0))
+    
+    # Total counter
+    total_counter_container = ttk.Frame(counter_frame)
+    total_counter_container.pack(side=tk.LEFT)
+    
+    ttk.Label(total_counter_container, text="Total Cookies:", font=("Arial", 9)).pack(side=tk.LEFT)
+    total_counter_label = ttk.Label(total_counter_container, text=str(cookies_clicked_total), 
+                                   font=("Arial", 9, "bold"))
+    total_counter_label.pack(side=tk.LEFT, padx=(5, 0))
+    
+    # Reset button for total counter
+    def reset_total_counter():
+        global cookies_clicked_total
+        cookies_clicked_total = 0
+        update_counter_display()
+        auto_save_options()
+        log_message("Total cookies counter reset to 0")
+        
+    ttk.Button(total_counter_container, text="Reset", command=reset_total_counter, 
+              width=5).pack(side=tk.LEFT, padx=(5, 0))
+    
     # Hint for toggle key
     hint_text = f"Press {options['toggle_key']} to toggle bot ON/OFF"
     hint_label = ttk.Label(main_frame, text=hint_text, font=("Arial", 8), foreground="#666666")
-    hint_label.grid(row=7, column=0, columnspan=3, pady=(0, 5))
+    hint_label.grid(row=8, column=0, columnspan=3, pady=(0, 5))
     
     # Save button
     save_button = ttk.Button(main_frame, text="Save Settings", command=save_settings)
-    save_button.grid(row=8, column=0, columnspan=3, pady=5)
+    save_button.grid(row=9, column=0, columnspan=3, pady=5)
     
     # Log section label
-    log_label = ttk.Label(main_frame, text="Activity Log", font=("Arial", 10, "bold"))
-    log_label.grid(row=9, column=0, columnspan=3, pady=(10, 5), sticky=tk.W)
+    log_label_frame = ttk.Frame(main_frame)
+    log_label_frame.grid(row=10, column=0, columnspan=3, pady=(10, 5), sticky=tk.W)
+    
+    log_label = ttk.Label(log_label_frame, text="Activity Log", font=("Arial", 10, "bold"))
+    log_label.pack(side=tk.LEFT)
+    
+    # Log lines configuration
+    log_lines_frame = ttk.Frame(log_label_frame)
+    log_lines_frame.pack(side=tk.RIGHT, padx=(10, 0))
+    
+    ttk.Label(log_lines_frame, text="Max lines:").pack(side=tk.LEFT)
+    max_lines_var = tk.StringVar(value=str(MAX_LOG_LINES))
+    max_lines_entry = ttk.Entry(log_lines_frame, textvariable=max_lines_var, width=5)
+    max_lines_entry.pack(side=tk.LEFT, padx=(5, 0))
+    
+    # Function to update max lines
+    def update_max_lines():
+        global MAX_LOG_LINES
+        try:
+            new_max = int(max_lines_var.get())
+            if new_max > 0:
+                MAX_LOG_LINES = new_max
+                options['max_log_lines'] = new_max
+                save_options(options)
+                log_message(f"Maximum log lines set to {MAX_LOG_LINES}")
+        except ValueError:
+            messagebox.showerror("Invalid Value", "Please enter a valid number for maximum lines.")
+    
+    ttk.Button(log_lines_frame, text="Set", command=update_max_lines, width=3).pack(side=tk.LEFT, padx=(5, 0))
     
     # Scrollable log text box
     log_text = scrolledtext.ScrolledText(main_frame, height=10, width=50, wrap=tk.WORD)
-    log_text.grid(row=10, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
+    log_text.grid(row=11, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5)
     log_text.config(state=tk.DISABLED)  # Make it read-only
     
     # Configure the row with the log to expand
-    main_frame.grid_rowconfigure(10, weight=1)
+    main_frame.grid_rowconfigure(11, weight=1)
     main_frame.grid_columnconfigure(0, weight=1)
     main_frame.grid_columnconfigure(1, weight=1)
     main_frame.grid_columnconfigure(2, weight=1)
@@ -278,6 +424,11 @@ def create_gui():
     
     # When window closes
     def on_closing():
+        log_message("Saving settings and shutting down...")
+        
+        # Save the current total cookies before exiting
+        auto_save_options()
+        
         stop_event.set()
         if golden_cookie_thread and golden_cookie_thread.is_alive():
             golden_cookie_thread.join(timeout=1)
