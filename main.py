@@ -13,17 +13,18 @@ DEFAULT_CONFIG = {
     'golden_check_interval_sec': 0,
     'golden_check_interval_ms': 500,
     'golden_confidence': 0.80,
-    'golden_image_path': 'golden_cookie.png',
+    'golden_image_path': '.cookieclickercc/golden_cookie.png',
     'golden_cookies_clicked_total': 0,
     
     'big_toggle_key': 'f9',
     'big_check_interval_sec': 0,
     'big_check_interval_ms': 0,
     'big_confidence': 0.80,
-    'big_image_path': 'big_cookie.png',
+    'big_image_path': '.cookieclickercc/big_cookie.png',
     'big_cookies_clicked_total': 0
 }
-CONFIG_FILE = 'cccc-data.pkl'
+root_dir = '.cookieclickercc'
+CONFIG_FILE = '.cookieclickercc/cccc-data.pkl'
 
 class CookieClickerBot:
     def __init__(self):
@@ -375,7 +376,7 @@ class CookieClickerBot:
     def create_gui(self):
         root = tk.Tk()
         root.title("Cookie Clicker Cookie Clicker")
-        root.geometry("500x620") # still too small on windows vm
+        root.geometry("550x600") # still too small on windows vm
         root.resizable(True, True)
         
         current_golden_f_num = self._extract_f_num(self.config['golden_toggle_key'], 8)
@@ -597,5 +598,23 @@ class CookieClickerBot:
         root.mainloop()
 
 if __name__ == "__main__":
+    # create directory if it doesn't exist
+    if not os.path.exists(root_dir):
+        os.makedirs(root_dir)
+        print(f"Created directory: {root_dir}")
+    # check if image files exist
+    if not os.path.exists(DEFAULT_CONFIG['golden_image_path']):
+        # download from github
+        import urllib.request
+        url = "https://raw.githubusercontent.com/aroasanight/cookie-clicker-cookie-clicker/main/golden_cookie.png"
+        urllib.request.urlretrieve(url, DEFAULT_CONFIG['golden_image_path'])
+        print(f"Downloaded {DEFAULT_CONFIG['golden_image_path']} from GitHub.")
+    if not os.path.exists(DEFAULT_CONFIG['big_image_path']):
+        # download from github
+        import urllib.request
+        url = "https://raw.githubusercontent.com/aroasanight/cookie-clicker-cookie-clicker/main/big_cookie.png"
+        urllib.request.urlretrieve(url, DEFAULT_CONFIG['big_image_path'])
+        print(f"Downloaded {DEFAULT_CONFIG['big_image_path']} from GitHub.")
+    
     bot = CookieClickerBot()
     bot.run()
