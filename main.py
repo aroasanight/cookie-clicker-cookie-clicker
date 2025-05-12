@@ -622,13 +622,13 @@ if __name__ == "__main__":
     if not os.path.exists(DEFAULT_CONFIG['golden_image_path']):
         # download from github
         import urllib.request
-        url = "https://raw.githubusercontent.com/aroasanight/cookie-clicker-cookie-clicker/main/golden_cookie.png"
+        url = "https://raw.githubusercontent.com/aroasanight/cookie-clicker-cookie-clicker/main/assets/v1/golden_cookie.png"
         urllib.request.urlretrieve(url, DEFAULT_CONFIG['golden_image_path'])
         print(f"Downloaded {DEFAULT_CONFIG['golden_image_path']} from GitHub.")
     if not os.path.exists(DEFAULT_CONFIG['big_image_path']):
         # download from github
         import urllib.request
-        url = "https://raw.githubusercontent.com/aroasanight/cookie-clicker-cookie-clicker/main/big_cookie.png"
+        url = "https://raw.githubusercontent.com/aroasanight/cookie-clicker-cookie-clicker/main/assets/v1/big_cookie.png"
         urllib.request.urlretrieve(url, DEFAULT_CONFIG['big_image_path'])
         print(f"Downloaded {DEFAULT_CONFIG['big_image_path']} from GitHub.")
     
