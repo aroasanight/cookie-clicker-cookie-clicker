@@ -200,9 +200,11 @@ class CookieClickerBot:
                         
                         original_pos = pyautogui.position()
                         pyautogui.click(location)
-                        pyautogui.moveTo(original_pos)
+
+                        if not big_cookie_was_running == True:
+                            pyautogui.moveTo(original_pos)
                         
-                        if big_cookie_was_running != self.big_running: # restore big cookie state
+                        if big_cookie_was_running != self.big_running:
                             print(f"[{timestamp}] Restoring big cookie clicker state to {big_cookie_was_running}")
                             self.big_running = big_cookie_was_running
                             self.update_status_display()
@@ -210,7 +212,7 @@ class CookieClickerBot:
                         self.save_config(show_confirmation=False)
                         
                 except Exception as e:
-                    print(f"Golden cookie error: {e}")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] Error in golden cookie watcher: {e}")
             
             total_interval = self.config['golden_check_interval_sec'] + (self.config['golden_check_interval_ms'] / 1000)
             time.sleep(max(0.1, total_interval))
@@ -246,14 +248,24 @@ class CookieClickerBot:
         
         click_thread_count = 100 if self.config['big_check_interval_sec'] == 0 and self.config['big_check_interval_ms'] == 0 else 1
         
+        big_cookie_position = None
+
+
+
         while not self.stop_event.is_set():
             if self.big_running:
                 try:
                     
                     if big_cookie_position is None:
-                        location = pyautogui.locateCenterOnScreen(self.config['big_image_path'], confidence=self.config['big_confidence'])
-                        
-                        if location:
+                        # print("hi1")
+                        try:
+                            location = pyautogui.locateCenterOnScreen(self.config['big_image_path'], confidence=self.config['big_confidence'])
+                        except:
+                            location = None
+
+                        # print("hi")
+
+                        if location is not None:
                             big_cookie_position = location
                             timestamp = datetime.now().strftime('%H:%M:%S')
                             print(f"[{timestamp}] Big cookie found at {big_cookie_position}")
@@ -263,6 +275,10 @@ class CookieClickerBot:
                             
                             start_time = time.time()
                             print(f"[{timestamp}] Starting {click_thread_count} click thread(s)")
+
+                        else:
+                            pyautogui.move(0, -500)
+                            print(f"[{datetime.now().strftime('%H:%M:%S')}] Mouse moved up 100px to help big cookie detection")
                     
                     if big_cookie_position:
                         current_position = pyautogui.position()
@@ -296,7 +312,7 @@ class CookieClickerBot:
                             print(f"[{timestamp}] Big cookie clicks: Session: {self.big_cookies_clicked_session}, Total: {self.big_cookies_clicked_total}")
                                 
                 except Exception as e:
-                    print(f"Big cookie error: {e}")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] Error in big cookie clicker: {e}")
             else:
                 # if not clicking stop all threads
                 if click_threads:
