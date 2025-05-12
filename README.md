@@ -1,6 +1,6 @@
 # Important Info
 
-1. Use `claude_v4.py` for the latest. v1, v2, v3, and base are all "backups" (ie functioning versions with lesser features).
+1. Use `main.py` for the latest. v1, v2, v3, v4, and base are all "backups" (ie functioning versions with lesser features).
 
 2. Disable fancy graphics in Cookie Clicker's settings for Golden Cookie detection to function.
 
