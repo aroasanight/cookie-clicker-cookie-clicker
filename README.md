@@ -1,12 +1,6 @@
-# Important Info
+# Important
 
-1. Use `main.py` for the latest. v1, v2, v3, v4, and base are all "backups" (ie functioning versions with lesser features).
-
-2. Disable fancy graphics in Cookie Clicker's settings for Golden Cookie detection to function.
-
-3. Ensure you're using provided `golden_cookie.png` and `big_cookie.png` images.
-
-4. With the default delay of 0ms on the big cookie autoclicker, this may cause high CPU usage. If this becomes a problem, set it to 1ms or above and only 1 thread will run instead of 100.
+Disable fancy graphics in Cookie Clicker's settings for Golden Cookie detection to function.
 
 # Requirements
 
