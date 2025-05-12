@@ -18,7 +18,7 @@ DEFAULT_CONFIG = {
     
     'big_toggle_key': 'f9',
     'big_check_interval_sec': 0,
-    'big_check_interval_ms': 0,
+    'big_check_interval_ms': 1,
     'big_confidence': 0.80,
     'big_image_path': '.cookieclickercc/big_cookie.png',
     'big_cookies_clicked_total': 0

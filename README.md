@@ -39,4 +39,4 @@ opencv-python
 
 - Golden Cookie autoclicker is bound to F8, with a 500ms delay between scanning the screen for golden cookies.
 
-- Big Cookie autoclicker is bound to F9, with no delay between clicks.
+- Big Cookie autoclicker is bound to F9, with 1ms delay between clicks.
